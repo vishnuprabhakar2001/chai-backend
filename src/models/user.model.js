@@ -102,6 +102,9 @@ browser stores token (cookie/localstorage)
 next request → sends token back
 backend verifies → allows access
 */
-
+// When the browser sends a token: it has HEADER . PAYLOAD . SIGNATURE.
+// The server takes the HEADER and PAYLOAD from the user and Then the server uses its secret key to regenerate a new signature.
+// If generated signature matches with the signature come from the access token, it is valid.
+// Refresh Token is used to get a new Access Token without logging in again.
 export const User = mongoose.model("User", userSchema);
 
