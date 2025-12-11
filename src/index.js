@@ -14,7 +14,7 @@ dotenv.config({
 connectDB()          // Whenever Asunchronous method gets completed, it returns promise.
 .then( () => {
     app.listen(process.env.PORT || 8000, () => {   // Here, server gets started after getting connected from database.
-        console.log(` Server is running at port : ${process.env.PORT}`);
+        console.log(`⚙️  Server is running at port : ${process.env.PORT}`);
     })
 })
 .catch((err) => {

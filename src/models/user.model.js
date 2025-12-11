@@ -54,7 +54,7 @@ const userSchema = new Schema(
 userSchema.pre("save", async function (next) {    // next is the function passed by Mongoose to our middleware as a parameter,
  if(!this.isModified("password"))   return next();  // and calling next() tells Mongoose to continue to the next middleware or the saving process.
 
-    this.password = bcrypt.hash(this.password, 10)  // The 10 is the salt rounds. Salt rounds tell bcrypt how many times to process (hash) the password.
+    this.password = await bcrypt.hash(this.password, 10)  // The 10 is the salt rounds. Salt rounds tell bcrypt how many times to process (hash) the password.
     next()    
 });
 
