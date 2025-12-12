@@ -51,16 +51,26 @@ const userSchema = new Schema(
     }    
 );
 
-userSchema.pre("save", async function (next) {    // next is the function passed by Mongoose to our middleware as a parameter,
- if(!this.isModified("password"))   return next();  // and calling next() tells Mongoose to continue to the next middleware or the saving process.
+// userSchema.pre("save", async function (next) {    // next is the function passed by Mongoose to our middleware as a parameter,
+//  if(!this.isModified("password"))   return next();  // and calling next() tells Mongoose to continue to the next middleware or the saving process.
 
-    this.password = await bcrypt.hash(this.password, 10)  // The 10 is the salt rounds. Salt rounds tell bcrypt how many times to process (hash) the password.
-    next()    
+//     this.password = await bcrypt.hash(this.password, 10)  // The 10 is the salt rounds. Salt rounds tell bcrypt how many times to process (hash) the password.
+//     next()    
+// });
+
+//Hitesh Sir’s video is 2 years old, so it likely used Mongoose 5.x, which required next().
+//Today, with Mongoose 6+, you don’t need next() in async hooks.
+
+userSchema.pre("save", async function () {
+    if (!this.isModified("password")) return;
+
+    this.password = await bcrypt.hash(this.password, 10);
 });
 
 
-userSchema.methods.isPasswordCorrect = async function   
-(password){                                             // This is the password entered by the user during login. Here password is the input parameter.
+
+
+userSchema.methods.isPasswordCorrect = async function   (password){                                             // This is the password entered by the user during login. Here password is the input parameter.
     return await bcrypt.compare(password, this.password)  // this.password is Password stored in database (hashed).
 }                                                // bcrypt.compare() takes user typed plain text password, hashes it internally, compares it with stored hash (this.password), returns true if both matches otherwise false.
     
@@ -107,4 +117,10 @@ backend verifies → allows access
 // If generated signature matches with the signature come from the access token, it is valid.
 // Refresh Token is used to get a new Access Token without logging in again.
 export const User = mongoose.model("User", userSchema);
+
+
+
+
+
+
 
