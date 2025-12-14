@@ -209,8 +209,8 @@ try {
     }
     
     const options = {
-        httpOnly: true,
-        secure: true
+        httpOnly: true,  // Prevents JavaScript (document.cookie) from accessing the cookie. Even if an attacker injects JavaScript into your site, they cannot read or steal the token.
+        secure: true  // Cookie is sent only over HTTPS, never HTTP. Prevents tokens from being intercepted during network transmission (Man-in-the-Middle attacks).
     }
     
     const {accessToken, newRefreshToken} = await generateAccessAndRefreshTokens(user._id)
