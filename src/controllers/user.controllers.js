@@ -353,9 +353,9 @@ const updateUserCoverImage = asyncHandler( async(req, res) => {
 const getUserChannelProfile = asyncHandler( async(req, res) => {
 const {username} = req.params
 
-if (!username?.trim()) {
+if (!username?.trim()) {     // This check catches all invalid username cases if username is null, undefined, empty string ("") or contains only spaces " ".
     throw new ApiError(400, "username is missing.")
-}
+}   
 
 const channel = await User.aggregate([
     {
@@ -389,8 +389,8 @@ const channel = await User.aggregate([
                 },
                 isSubscribed: {
                     $cond: {
-                        if: {$in: [req.user?._id, "$subscribers.subscriber" ]},  // Here, it goes into the new field subscribers and checks wether there is req.user?._id available on not. 
-                        then: true,
+                        if: {$in: [req.user?._id, "$subscribers.subscriber" ]},  // Here, it goes into the new field subscribers i.e.into all the documents of subscribers and checks wether there is req.user?._id available or not. 
+                        then: true,                                              // if   req.user?._id i.e. you are available in that documents, it means you have subscribed otherwise you have not subscribed. This is how you come to see wether you have subscribed or not when you open any youtube channel. 
                         else: false
                     }
                 }
@@ -410,7 +410,7 @@ const channel = await User.aggregate([
        } 
 ])
 
-if (!channel?.length) {
+if (!channel?.length) {    // Channel not found ->undefined / null->Error thrown;  if Channel exists but empty->[]->Error thrown
     throw new ApiError(404, "channel does not exists")
 }
 
