@@ -350,7 +350,77 @@ const updateUserCoverImage = asyncHandler( async(req, res) => {
 
 })
 
+const getUserChannelProfile = asyncHandler( async(req, res) => {
+const {username} = req.params
 
+if (!username?.trim()) {
+    throw new ApiError(400, "username is missing.")
+}
+
+const channel = await User.aggregate([
+    {
+        $match: {
+            username: username?.toLowerCase()
+        }
+    },
+    {
+           $lookup: {
+                  from: "subscriptions",    // Here, the model names saved in lower case plural in data base.
+                  localField: "_id",         // Here, it will select all that documents from subscription model where channel field match with my _id, 
+                  foreignField: "channel",   // and that selected documents will be the all where channel will be mine but sibscribed by different user i.e. different _id
+                  as: "subscribers"          // and sum of all that selected documetns will be the total no. of subscriber.
+           } 
+        },
+        {
+           $lookup: {
+                  from: "subscriptions",    
+                  localField: "_id",          // Here, it will select all the documents from the subscription model where subscriber field match with my _id, 
+                  foreignField: "subscriber",  // and that selected documents will be all where I would have subscribed to all different chennel and if we 
+                  as: "subscribedTo"           // sum all that selected documents, it will be the total no. of channels that I have subscribed.
+           } 
+        },
+        {
+            $addFields: {
+                subscribersCount: {
+                    $size: "$subscribers"
+                },
+                channelsSubscribedToCount: {
+                    $size: "$subscribedTo"
+                },
+                isSubscribed: {
+                    $cond: {
+                        if: {$in: [req.user?._id, "$subscribers.subscriber" ]},  // Here, it goes into the new field subscribers and checks wether there is req.user?._id available on not. 
+                        then: true,
+                        else: false
+                    }
+                }
+            }
+        },
+       {
+        $project: {
+            fullName: 1,
+            username: 1,
+            subscribersCount: 1,
+            channelsSubscribedToCount: 1,
+            isSubscribed: 1,
+            avatar: 1,
+            coverImage: 1,
+            email: 1
+        }
+       } 
+])
+
+if (!channel?.length) {
+    throw new ApiError(404, "channel does not exists")
+}
+
+return res
+.status(200)
+.json(
+    new ApiResponse(200, channel[0], "User channel fetched successfully")
+)
+
+})
 
 
 export {
@@ -362,5 +432,6 @@ export {
     getCurrentUser,
     updateAccountDetails,
     updateUserAvatar,
-    updateUserCoverImage
+    updateUserCoverImage,
+    getUserChannelProfile
 }
