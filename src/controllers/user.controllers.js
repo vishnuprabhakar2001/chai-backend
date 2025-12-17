@@ -437,7 +437,7 @@ const getWatchHistory = asyncHandler(async(req, res) => {
         as: "watchHistory",
         pipeline: [
             {
-               $lookup: {
+               $lookup: {            // I required this nested lookup to get the owner because in the above case we will gat all fields but owner field will be empty.
                 from: "users",
                 localField: "owner",
                 foreignField: "_id",
