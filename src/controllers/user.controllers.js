@@ -167,9 +167,13 @@ const logoutUser = asyncHandler(async(req, res) => {
   await User.findByIdAndUpdate( 
     req.user._id,               // Here I got req.user available because in auth.middleware in verifyJWT we added req.user = user; at the end.
     {
-        $set: {
-            refreshToken: undefined
-        }   
+        // $set: {
+        //     refreshToken: undefined
+        // }   
+
+        $unset: {
+            refreshToken: 1    // This removes the field from document,  above onne $set is also same. But, This guarantees the refresh token is fully removed and cannot be reused.
+        }
     },
     {
         new: true    // this will give the new value having refreshToken is undefined.
